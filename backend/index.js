@@ -4,6 +4,8 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 
+const demo_router = require('./routes/api');
+
 const { extract } = require("./Extract");
 
 const app = express();
@@ -60,6 +62,8 @@ app.post("/upload", upload.single("file"), (req, res) => {
     res.send(`${req.file.originalname} uploaded successfully.`);
   }
 });
+
+app.use('/api', demo_router);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
