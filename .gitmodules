@@ -4,3 +4,6 @@
 [submodule "frontend"]
 	path = benami-transaction-prohibition-frontend
 	url = https://github.com/vishal-s-patil/benami-transaction-prohibition-frontend
+[submodule "signature_verification"]
+	path = BTP-signature-verification-service
+	url = https://github.com/vishal-s-patil/BTP-signature-verification-service.git
