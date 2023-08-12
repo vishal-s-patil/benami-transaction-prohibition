@@ -1,3 +1,6 @@
 [submodule "benami-transaction-prohibition-frontend"]
 	path = benami-transaction-prohibition-frontend
 	url = https://github.com/vishal-s-patil/benami-transaction-prohibition-frontend.git
+[submodule "frontend"]
+	path = benami-transaction-prohibition-frontend
+	url = https://github.com/vishal-s-patil/benami-transaction-prohibition-frontend

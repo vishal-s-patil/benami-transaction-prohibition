@@ -3,16 +3,29 @@ const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
+const bodyParser = require('body-parser');
 
-const demo_router = require('./routes/api');
-
-const { extract } = require("./Extract");
+const { extract } = require("./controllers/Extract");
+const { log } = require("console");
 
 const app = express();
 
+// json parser 
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const demo_router = require('./routes/api');
+const profile_route = require('./routes/profile_route');
+
 app.use(cors());
+
 app.use(express.static(path.join(__dirname, "public")));
 const upload = multer({ dest: "uploads/" });
+
+// routes
+app.use('/api', demo_router);
+app.use('/profile', profile_route);
+
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
@@ -23,6 +36,7 @@ app.use((req, res, next) => {
 
 const port = 8000;
 
+/*
 const contractABI = require("./contractABI.json");
 const contractAddress = "0x38A3F10Acbe84585C6Ec41A34e33EaC3C7852084";
 
@@ -63,7 +77,7 @@ app.post("/upload", upload.single("file"), (req, res) => {
   }
 });
 
-app.use('/api', demo_router);
+*/
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
