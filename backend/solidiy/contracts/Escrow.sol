@@ -40,13 +40,6 @@ contract Escrow {
         lender = _lender;
     }
 
-    function init_addresses (address _nftAddress, address payable _seller, address _inspector, address _lender) public {
-        nftAddress = _nftAddress;
-        seller = _seller;
-        inspector = _inspector;
-        lender = _lender;
-    }
-
     function list(uint256 _nftID, address _buyer, uint256 _purchasePrice, uint256 _escrowAmount) public payable onlySeller {
         IERC721(nftAddress).transferFrom(msg.sender, address(this), _nftID);
 
