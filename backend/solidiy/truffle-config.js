@@ -65,10 +65,18 @@ module.exports = {
     // options below to some value.
     //
     development: {
-     host: "127.0.0.1",     // Localhost (default: none)
-     port: 7545,            // Standard Ethereum port (default: none)
-     network_id: "*",       // Any network (default: none)
+      networkCheckTimeout: 1000000,
+      host: "127.0.0.1",     // Localhost (default: none)
+      port: 7545,            // Standard Ethereum port (default: none)
+      network_id: "*",       // Any network (default: none)
     },
+    // sepolia: {
+    //   provider: function () {
+    //     return new HDWalletProvider(mnemonic, "https://sepolia.infura.io/v3/9bd8bcea8f0d41a0878d5b90d6e23e6a")
+    //   },
+    //   network_id: 11155111,
+    //   from: "0xd5B2CB32Ba513d953EC10fB1b5dec28EeEb58F00"
+    // }
     //
     // An additional network, but with some advanced options…
     // advanced: {
@@ -106,7 +114,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.8.0",      // Fetch exact version from solc-bin (default: truffle's version)
+      version: "0.8.1",      // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
       // settings: {          // See the solidity docs for advice about optimization and evmVersion
       //  optimizer: {
