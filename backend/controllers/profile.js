@@ -95,9 +95,9 @@ get_user_data = (req, res) => {
     let users = data.users;
     for (let index = 0; index < users.length; index++) {
         const user = users[index];
-        if (user.account_id == req.body.account_id) {
+        if (user.account_id === req.body.account_id) {
             res.send({
-                user_detsils: user
+                user_details: user
             })
             return;
         }
