@@ -21,7 +21,6 @@ const get_structured_data = function (filename) {
                 dob,
                 e,
                 gender,
-                m,
                 country,
                 dist,
                 pc,
