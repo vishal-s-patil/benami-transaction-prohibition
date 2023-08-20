@@ -4,6 +4,7 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const bodyParser = require('body-parser');
+require('./Database/database_connection')
 
 const { extract } = require("./controllers/Extract");
 const { log } = require("console");
@@ -14,7 +15,6 @@ const app = express();
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const demo_router = require('./routes/api');
 const profile_route = require('./routes/profile_route');
 
 app.use(cors());
@@ -23,7 +23,6 @@ app.use(express.static(path.join(__dirname, "public")));
 const upload = multer({ dest: "uploads/" });
 
 // routes
-app.use('/api', demo_router);
 app.use('/profile', profile_route);
 
 

@@ -4,6 +4,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const { extract } = require("./Extract");
 const { get_structured_data } = require("./get_structured_data")
+const {User} = require('../Database/Models')
 
 data = {
     users: [{
@@ -38,7 +39,7 @@ const send_xml = async (filename) => {
         });
 
         if (resp.status === 200) {
-            return true; // signature is valid
+            return true; //signature is valid
         }
         else if (resp.status === 406) {
             return false; //signature is not valid
@@ -59,16 +60,21 @@ upload_xml = async (req, res) => {
             return res.end('Error Uploading File');
         } else {
             const filename = req.file.filename;
+            const pass = req.body.pass;
+            const account_address = req.body.account_address;
+
             console.log("file uploaded : ", filename);
 
             send_xml(filename).then(async (resp) => {
                 if (resp) {
-                    extract(filename.slice(0, -4), '2580')
+                    extract(filename.slice(0, -4), pass)
                     .then(() => {
                         get_structured_data(filename.slice(0, -4))
                         .then((user_data) => {
+                            user_data.account_address = account_address;
+                            const user = new User(user_data);
+                            user.save();
                             res.json({user_data});
-                            // console.log(user_data);
                         }).catch(err => {
                             console.log('xml parsing failed', err);
                         })
