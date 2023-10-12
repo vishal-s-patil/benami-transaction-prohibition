@@ -1,8 +1,12 @@
 // pass : 2SSVNSLdfrVBv4g6
+const dotenv = require('dotenv');
+dotenv.config();
 
 var mongoose = require('mongoose');
 
-const uri = `mongodb+srv://vspatil8123:2SSVNSLdfrVBv4g6@main.lgpyrsp.mongodb.net/BTP`
+const pass = process.env.MONGO_PASS;
+
+const uri = `mongodb+srv://vspatil8123:${pass}@main.lgpyrsp.mongodb.net/BTP`
 
 mongoose.connect(uri, {useNewUrlParser: true});
 

@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const profile = require('../controllers/nft_interaction');
+const nft_interaction = require('../controllers/nft_interaction');
 
-router.route("/get_user_data").post(profile.get_user_data);
-router.route("/upload").post(profile.upload_xml);
+router.route("/mint_nft").post(nft_interaction.mint_nft);
 
 module.exports = router;

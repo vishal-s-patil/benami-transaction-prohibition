@@ -1,3 +1,4 @@
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -70,13 +71,21 @@ module.exports = {
       port: 7545,            // Standard Ethereum port (default: none)
       network_id: "*",       // Any network (default: none)
     },
-    // sepolia: {
-    //   provider: function () {
-    //     return new HDWalletProvider(mnemonic, "https://sepolia.infura.io/v3/9bd8bcea8f0d41a0878d5b90d6e23e6a")
-    //   },
-    //   network_id: 11155111,
-    //   from: "0xd5B2CB32Ba513d953EC10fB1b5dec28EeEb58F00"
-    // }
+    sepolia: {
+      provider: () => new HDWalletProvider({
+        mnemonic: {
+          phrase: "chest coconut dirt opera raccoon canoe torch unfold receive genius hero draft"
+        },
+        providerOrUrl: "https://sepolia.infura.io/v3/2ca944753c1647ddb28ea8bf0832b3c5"
+      }),
+      network_id: 11155111, 
+      gas: 4000000,
+      gasPrice: 10000000000, 
+      confirmations: 2, 
+      timeoutBlocks: 200, 
+      networkCheckTimeout: 100000000,
+      skipDryRun: true
+    }
     //
     // An additional network, but with some advanced options…
     // advanced: {

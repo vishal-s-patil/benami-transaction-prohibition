@@ -42,23 +42,22 @@ contract Escrow {
 
     constructor(){}
 
-    function init (address _nftAddress, address payable _seller, address _inspector, address _lender) public {
+    function init (address _nftAddress, address payable _seller, address _inspector, address _lender) public returns(address) {
         nftAddress = _nftAddress;
         seller = _seller;
         inspector = _inspector;
         lender = _lender;
+        return nftAddress;
     }
 
-<<<<<<< HEAD
-    function list(uint256 _nftID, address _buyer, uint256 _purchasePrice, uint256 _escrowAmount) public payable onlySeller {
-=======
-    function list(uint256 _nftID, uint256 _purchasePrice, uint256 _escrowAmount) public payable onlySeller {
->>>>>>> dev
+    function list(uint256 _nftID, uint256 _purchasePrice, uint256 _escrowAmount) public payable returns(address){
         IERC721(nftAddress).transferFrom(msg.sender, address(this), _nftID);
 
         isListed[_nftID] = true;
         purchasePrice[_nftID] = _purchasePrice;
         escrowAmount[_nftID] = _escrowAmount;
+
+        return seller;
     }
 
     function setByuer(uint256 _nftID, address _buyer) public {
@@ -78,11 +77,11 @@ contract Escrow {
     }
 
     function finalizeSale(uint256 _nftID) public {
-        require(inspectionPassed[_nftID]);
-        require(approval[_nftID][buyer[_nftID]]);
-        require(approval[_nftID][seller]);
-        require(approval[_nftID][lender]);
-        require(address(this).balance >= purchasePrice[_nftID]);
+        require(inspectionPassed[_nftID], 'insepction failed');
+        require(approval[_nftID][buyer[_nftID]], 'approval required');
+        require(approval[_nftID][seller], ' approval required');
+        require(approval[_nftID][lender], 'lender approval required');
+        require(address(this).balance >= purchasePrice[_nftID], 'no enough balance');
 
         isListed[_nftID] = false;
 

@@ -1,0 +1,33 @@
+{
+    "name": "Luxury NYC Penthouse",
+    "address": "157 W 57th St APT 49B, New York, NY 10019",
+    "description": "Luxury Penthouse located in the heart of NYC",
+    "image": "",
+    "id": "",
+    "attributes": [
+        {
+            "trait_type": "price",
+            "value": 20
+        },
+        {
+            "trait_type": "type",
+            "value": "1bhk"
+        },
+        {
+            "trait_type": "Bed Rooms",
+            "value": 2
+        },
+        {
+            "trait_type": "Bathrooms",
+            "value": 3
+        },
+        {
+            "trait_type": "sqft",
+            "value": 123
+        },
+        {
+            "trait_type": "emi",
+            "value": 10
+        }
+    ]
+}

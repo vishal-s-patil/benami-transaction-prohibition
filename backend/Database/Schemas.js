@@ -16,6 +16,22 @@ const userSchema = new Schema({
     vtc: String,
 });
 
+const propertySchema = new Schema({
+    nft_id: Number,
+    owner: String,
+    price: Number,
+    emi: Number,
+    addr: String,
+    type: String,
+    sqft: Number,
+    status: String,
+    bed_rooms: String,
+    bath_rooms: String,
+    image: String,
+    metadata: String
+});
+
 module.exports = {
-    userSchema
+    userSchema,
+    propertySchema
 }

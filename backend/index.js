@@ -5,7 +5,7 @@ const multer = require("multer");
 const path = require("path");
 const bodyParser = require('body-parser');
 require('./Database/database_connection')
-
+const dotenv = require('dotenv');
 
 const { extract } = require("./controllers/Extract");
 const { log } = require("console");
@@ -17,6 +17,8 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const profile_route = require('./routes/profile_route');
+const property_route = require('./routes/property_route');
+const nft_interaction_route = require('./routes/nft_interaction_route');
 
 app.use(cors());
 
@@ -25,6 +27,8 @@ const upload = multer({ dest: "uploads/" });
 
 // routes
 app.use('/profile', profile_route);
+app.use('/property', property_route);
+app.use('/nft', nft_interaction_route);
 
 
 app.use((req, res, next) => {

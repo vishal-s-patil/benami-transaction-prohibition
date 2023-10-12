@@ -6,12 +6,6 @@ const { extract } = require("./Extract");
 const { get_structured_data } = require("./get_structured_data")
 const { User } = require('../Database/Models')
 
-data = {
-    users: [{
-        account_id: 1234
-    }],
-}
-
 // storage 
 
 var storage = multer.diskStorage({
@@ -102,20 +96,20 @@ is_correct_uuid = (req, res) => {
 
 }
 
-get_user_data = (req, res) => {
-    let users = data.users;
-    for (let index = 0; index < users.length; index++) {
-        const user = users[index];
-        if (user.account_id === req.body.account_id) {
-            res.send({
-                user_details: user
-            })
-            return;
+get_user_data = async (req, res) => {
+    const account_address = req.query.account_address;
+    if(account_address == undefined) {
+        const users = await User.find({});
+        res.send(users);
+    }else {
+        const users = await User.find({account_address});
+        if(users.length == 0) {
+            res.status(404).send({"msg" : "No records found"});
+        }
+        else {
+            res.send(users);
         }
     }
-    res.send({
-        "message": "user not found"
-    })
 }
 
 module.exports = {

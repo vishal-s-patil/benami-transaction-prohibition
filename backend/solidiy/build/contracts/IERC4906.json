@@ -561,8 +561,8 @@
     "version": "0.8.1+commit.df193b15.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.4.14",
-  "updatedAt": "2023-08-14T19:32:57.429Z",
+  "schemaVersion": "3.4.16",
+  "updatedAt": "2023-10-06T07:17:41.003Z",
   "devdoc": {
     "events": {
       "BatchMetadataUpdate(uint256,uint256)": {
