@@ -19,6 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const profile_route = require('./routes/profile_route');
 const property_route = require('./routes/property_route');
 const nft_interaction_route = require('./routes/nft_interaction_route');
+const escrow_interaction_route = require('./routes/escrow_interaction_route');
 
 app.use(cors());
 
@@ -29,6 +30,7 @@ const upload = multer({ dest: "uploads/" });
 app.use('/profile', profile_route);
 app.use('/property', property_route);
 app.use('/nft', nft_interaction_route);
+app.use('/escrow', escrow_interaction_route);
 
 
 app.use((req, res, next) => {

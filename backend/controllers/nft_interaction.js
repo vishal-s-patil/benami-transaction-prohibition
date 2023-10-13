@@ -15,8 +15,11 @@ const web3 = new Web3("HTTP://127.0.0.1:7545");
 const realJsonString = fs.readFileSync('solidiy/contractAddr/Real.json', 'utf-8');
 const realObject = JSON.parse(realJsonString);
 const realestateContractAddress = realObject.addr;
+const escrowJsonString = fs.readFileSync('solidiy/contractAddr/Escrow.json', 'utf-8');
+const escrowObject = JSON.parse(escrowJsonString);
+const escrowContractAddress = escrowObject.addr;
 const realestateContractJson = require('../solidiy/build/contracts/RealEstate.json');
-const { resolve } = require('path');
+const { log } = require('console');
 const realestateContract = new web3.eth.Contract(realestateContractJson.abi, realestateContractAddress);
 
 const total_supply_promise = function (account_id) {
@@ -185,6 +188,48 @@ const mint_nft = (req, res) => {
     });
 }
 
+// approve
+const approve_promise = function (nftID, current_owner) {
+    return new Promise(async function (resolve, reject) {
+        realestateContract.methods.approve(escrowContractAddress, nftID).send({ from: current_owner }, function (err, res) {
+            if (err) {
+                reject(err);
+            }
+            resolve(res);
+        });
+    })
+}
+
+const approve = async (req, res) => {
+    const { nftID, current_owner } = req.body;
+
+    const approve_response = await approve_promise(nftID, current_owner);
+    console.log(approve_response);
+
+    res.send({ "msg": `approved` })
+}
+
+// ownerOf
+const owner_of_primse = function(nftID, from) {
+    return new Promise(async function(resolve, reject) {
+        realestateContract.methods.ownerOf(nftID).call({ from: from }, function (err, result) {
+            if (err) {
+                reject(err);
+            }
+            resolve(result);
+        });
+    })
+}
+
+const owner_of = async (req, res) => {
+    const {nftID, from} = req.body;
+    const owner_of_response = await owner_of_primse(nftID, from); 
+    console.log(owner_of_response);;
+    res.send({"owner": `${owner_of_response}`});
+}
+
 module.exports = {
-    mint_nft
+    mint_nft,
+    approve,
+    owner_of
 }

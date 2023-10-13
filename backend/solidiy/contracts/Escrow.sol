@@ -42,12 +42,15 @@ contract Escrow {
 
     constructor(){}
 
-    function init (address _nftAddress, address payable _seller, address _inspector, address _lender) public returns(address) {
+    function init (address _nftAddress, address payable _seller, address _inspector) public returns(address) {
         nftAddress = _nftAddress;
         seller = _seller;
         inspector = _inspector;
-        lender = _lender;
         return nftAddress;
+    }
+
+    function setLender(address _lender) public {
+        lender = _lender;
     }
 
     function list(uint256 _nftID, uint256 _purchasePrice, uint256 _escrowAmount) public payable returns(address){

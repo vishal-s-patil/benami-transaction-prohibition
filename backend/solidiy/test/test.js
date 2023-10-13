@@ -31,7 +31,7 @@ let seller;
 
 async function getAcc() {
     accounts = await web3.eth.getAccounts();
-    seller = accounts[3];
+    seller = accounts[0];
 }
 
 async function main() {
@@ -49,8 +49,8 @@ async function main() {
     }
 }
 
-async function init(nftAddress, seller, inspector, lender) {
-    escrowContract.methods.init(nftAddress, seller, inspector, lender).send({ gasLimit: 3000000, from: seller }, (err, result) => {
+async function init(nftAddress, seller, inspector) {
+    escrowContract.methods.init(nftAddress, seller, inspector).send({ gasLimit: 3000000, from: seller }, (err, result) => {
         if (err) {
             console.log(err);
         } else {
@@ -118,6 +118,16 @@ async function setBuyer(nftID, buyer, seller) {
     })
 }
 
+async function setLender(lender, buyer) {
+    escrowContract.methods.setLender(lender).send({ gasLimit: 3000000, from: buyer }, (err, result) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log('set lender : ', result);
+        }
+    })
+}
+
 
 async function depositEarnest(nftID, buyer) {
     escrowContract.methods.depositEarnest(nftID).send({ gasLimit: 3000000, from: buyer, value: tokens(10) }, (err, result) => {
@@ -170,21 +180,22 @@ async function finalizeSale(nftID, seller) {
 (async function () {
     await getAcc()
     // await main()
-    await total_supply()
-    // await approve(escrowContractAddress, 1, accounts[3]);
-    // await init(realestateContractAddress, accounts[3], accounts[1], accounts[2]);
-    // await list(1, 20, 10, escrowContractAddress);
-    // await setBuyer(1, accounts[0], accounts[3]);
-    // await depositEarnest(1, accounts[0]);
+    // await total_supply()
+    // await approve(escrowContractAddress, 1, accounts[0]);
+    // await init(realestateContractAddress, accounts[0], accounts[1]);
+    // await list(1, 20, 10, accounts[0]);
+    // await setBuyer(1, accounts[3], accounts[0]);
+    // await setLender(accounts[2], accounts[3]);
+    // await depositEarnest(1, accounts[3]);
     // await updateInspectionStatus(1, true);
     // await approveSale(1, accounts[0]);
     // await approveSale(1, accounts[1]);  
     // await approveSale(1, accounts[2]);
     // await approveSale(1, accounts[3]);  
     // await getBalanceInContract();
-    await ownerOf(4);
+    // await ownerOf(1);
     // await sendAmount(accounts[2], escrowContractAddress, 10);
-    // await finalizeSale(1, accounts[3]);
+    // await finalizeSale(1, accounts[0]);
 })();
 
 // console.log(escrowContract.methods);

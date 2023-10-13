@@ -18,6 +18,7 @@ User.find({})
 
 // pinata 
 
+/*
 const axios = require('axios')
 const FormData = require('form-data')
 const fs = require('fs')
@@ -32,21 +33,6 @@ var storage = multer.diskStorage({
         cb(null, file.originalname)
     }
 })
-
-const upload_image = () => {
-    var upload = multer({ storage: storage }).single('file');
-
-    upload(req, res, async function (error) {
-
-        if (error) {
-            return res.end('Error Uploading File');
-        } else {
-            const filename = req.file.filename;
-
-            console.log("file uploaded : ", filename);
-        }
-    });
-}
 
 const pinFileToIPFS = async () => {
     const formData = new FormData();
@@ -80,3 +66,6 @@ const pinFileToIPFS = async () => {
 }
 
 pinFileToIPFS()
+
+*/
+
