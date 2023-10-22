@@ -19,7 +19,6 @@ const escrowJsonString = fs.readFileSync('solidiy/contractAddr/Escrow.json', 'ut
 const escrowObject = JSON.parse(escrowJsonString);
 const escrowContractAddress = escrowObject.addr;
 const realestateContractJson = require('../solidiy/build/contracts/RealEstate.json');
-const { log } = require('console');
 const realestateContract = new web3.eth.Contract(realestateContractJson.abi, realestateContractAddress);
 
 const total_supply_promise = function (account_id) {
@@ -95,7 +94,7 @@ const upload_json_promise = function (content) {
 
 const mint_nft_promise = function (tokenURI, from) {
     return new Promise(async function (resolve, reject) {
-        realestateContract.methods.mint("0xF020102E2ac056CBb72E007773451C3DB7F8FD41", tokenURI).send({ gasLimit: 3000000, from: "0xF020102E2ac056CBb72E007773451C3DB7F8FD41" }, async (err, result) => {
+        realestateContract.methods.mint(from, tokenURI).send({ gasLimit: 3000000, from: from }, async (err, result) => {
             if (err) {
                 reject(err);
             }
@@ -151,17 +150,17 @@ const mint_nft = (req, res) => {
             const filename = req.file.filename;
             const owner = req.body.account_address
 
-            // const image_upload_response = await upload_image_promise(filename);
-            // const IpfsHash = image_upload_response.IpfsHash
-            const IpfsHash = "QmXGFPvcdQvTH1yiPYFbGa384Epu7qgE1nWwvVEKa9aKNS" //image_upload_response.IpfsHash
+            const image_upload_response = await upload_image_promise(filename);
+            const IpfsHash = image_upload_response.IpfsHash
+            // const IpfsHash = "QmXGFPvcdQvTH1yiPYFbGa384Epu7qgE1nWwvVEKa9aKNS" //image_upload_response.IpfsHash
             const imageurl = pinatabaseurl + IpfsHash;
             data["image"] = imageurl;
             const id = await total_supply_promise(owner);
             data["id"] = 1 + +id;
 
-            // const json_upload_response = await upload_json_promise(data);
-            // const jsonurl = pinatabaseurl + json_upload_response;
-            const jsonurl = pinatabaseurl + "QmSCgBBCjon2SAbvXpqGLhmGci7EnKbf21R3sywzaxEcmE";
+            const json_upload_response = await upload_json_promise(data);
+            const jsonurl = pinatabaseurl + json_upload_response;
+            // const jsonurl = pinatabaseurl + "QmSCgBBCjon2SAbvXpqGLhmGci7EnKbf21R3sywzaxEcmE";
 
             const property_data = {
                 nft_id: data["id"],
@@ -178,12 +177,12 @@ const mint_nft = (req, res) => {
                 metadata: jsonurl
             }
 
-            // const mint_response = await mint_nft_promise(jsonurl, owner);
+            const mint_response = await mint_nft_promise(jsonurl, owner);
 
-            // const property = new Property(property_data);
-            // property.save();
+            const property = new Property(property_data);
+            property.save();
 
-            res.send({ "msg": "property added/minted successfully", "txn": "mint_response" });
+            res.send({ "msg": "property added/minted successfully", "txn": mint_response });
         }
     });
 }
@@ -228,8 +227,106 @@ const owner_of = async (req, res) => {
     res.send({"owner": `${owner_of_response}`});
 }
 
+
+// print all previous and current owners of a perticular nft
+
+async function getAllOwners(tokenId) {
+    const transfers = await realestateContract.getPastEvents('Transfer', {
+        filter: { tokenId },
+        fromBlock: 0,
+        toBlock: 'latest'
+    });
+
+    const owners = transfers.map(event => event.returnValues.from);
+
+    const currentOwner = await realestateContract.methods.ownerOf(tokenId).call();
+
+    owners.push(currentOwner);
+    owners.shift();
+    return owners;
+}
+
+const get_all_owners = async (req, res) => {
+    const tokenId = req.query.tokenId;
+    const owners = await getAllOwners(tokenId);
+    res.json(owners)
+}
+
+
+// get all nft owned by a perticular account presently
+
+
+async function getOwnedNFTs(ownerAddress) {
+    const totalSupply = await realestateContract.methods.totalSupply().call();
+
+    const ownedNFTs = [];
+    for (let i = 1; i <= totalSupply; i++) {
+        const tokenId = i;
+        const currentOwner = await realestateContract.methods.ownerOf(tokenId).call();
+
+        if (currentOwner.toLowerCase() === ownerAddress.toLowerCase()) {
+            ownedNFTs.push(tokenId);
+        }
+    }
+
+    return ownedNFTs;
+}
+
+const get_owned_nfts = async (req, res) => {
+    const account = req.query.account_address;
+    const nftIds = await getOwnedNFTs(account);
+
+    res.json(nftIds);
+} 
+
+
+// get nfts owned both present and previous with timestamp
+
+async function getNFTOwnershipHistory(ownerAddress) {
+    const transferEvents = await realestateContract.getPastEvents('Transfer', {
+        fromBlock: 0, // Start from the beginning
+        toBlock: 'latest', // Up to the latest block
+        filter: {
+            to: ownerAddress, // Filter for transfers to the owner's address
+        },
+    });
+
+    const ownershipHistory = [];
+
+    for (const event of transferEvents) {
+        const { blockNumber, returnValues, transactionHash } = event;
+        const timestamp = (await web3.eth.getBlock(blockNumber)).timestamp;
+        ownershipHistory.push({
+            tokenId: returnValues.tokenId,
+            timestamp,
+            transactionHash,
+        });
+    }
+
+    return ownershipHistory;
+}
+
+const get_ownership_history = async (req, res) => {
+    const acc = req.query.account_address;
+    const history = await getNFTOwnershipHistory(acc);
+
+    res.json(history);
+}
+
+
 module.exports = {
     mint_nft,
     approve,
-    owner_of
+    owner_of,
+    get_all_owners,
+    get_owned_nfts,
+    get_ownership_history
 }
+
+/*
+
+API Key: 75b0b1f0334a1630f2e3
+ API Secret: 89f595beaa54a58eca303118d57bf610362eb34e424441b8477fab03280a037e
+ JWT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIzOTQ0Y2Q0MC1iODM1LTQ1ZDYtYTNmYy0wNGNhZTFiMmVjOWQiLCJlbWFpbCI6InZzcGF0aWw4MTIzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfSx7ImlkIjoiTllDMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiI3NWIwYjFmMDMzNGExNjMwZjJlMyIsInNjb3BlZEtleVNlY3JldCI6Ijg5ZjU5NWJlYWE1NGE1OGVjYTMwMzExOGQ1N2JmNjEwMzYyZWIzNGU0MjQ0NDFiODQ3N2ZhYjAzMjgwYTAzN2UiLCJpYXQiOjE2OTc5OTU2MDV9.CvSRPANzHH4azN242DW977tGT8QO5xGILlfIV6kFACM
+
+*/

@@ -181,21 +181,22 @@ async function finalizeSale(nftID, seller) {
     await getAcc()
     // await main()
     // await total_supply()
-    // await approve(escrowContractAddress, 1, accounts[0]);
-    // await init(realestateContractAddress, accounts[0], accounts[1]);
-    // await list(1, 20, 10, accounts[0]);
-    // await setBuyer(1, accounts[3], accounts[0]);
-    // await setLender(accounts[2], accounts[3]);
-    // await depositEarnest(1, accounts[3]);
+    // await approve(escrowContractAddress, 1, accounts[3]);
+    // await init(realestateContractAddress, accounts[3], accounts[1]);
+    // await list(1, 20, 10, accounts[3]);
+    // await setBuyer(1, accounts[4], accounts[3]);
+    // await setLender(accounts[2], accounts[4]);
+    // await depositEarnest(1, accounts[4]);
     // await updateInspectionStatus(1, true);
     // await approveSale(1, accounts[0]);
     // await approveSale(1, accounts[1]);  
     // await approveSale(1, accounts[2]);
     // await approveSale(1, accounts[3]);  
+    // await approveSale(1, accounts[4]);  
     // await getBalanceInContract();
     // await ownerOf(1);
     // await sendAmount(accounts[2], escrowContractAddress, 10);
-    // await finalizeSale(1, accounts[0]);
+    // await finalizeSale(1, accounts[3]);
 })();
 
 // console.log(escrowContract.methods);
