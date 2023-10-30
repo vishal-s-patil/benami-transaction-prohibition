@@ -182,7 +182,7 @@ const mint_nft = (req, res) => {
             const property = new Property(property_data);
             property.save();
 
-            res.send({ "msg": "property added/minted successfully", "txn": mint_response });
+            res.send({ "msg": "property added/minted successfully", "txn": mint_response, "data" : property_data });
         }
     });
 }
