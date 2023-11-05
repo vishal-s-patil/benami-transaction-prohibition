@@ -10,5 +10,6 @@ router.route("/deposit_earnest").post(escrow_interaction.deposit_earnest);
 router.route("/get_balance_in_contract").get(escrow_interaction.get_balance_in_contract);
 router.route("/send_amount").post(escrow_interaction.send_amount);
 router.route("/finalize_sale").post(escrow_interaction.finalize_sale);
+router.route("/loan_repayment").post(escrow_interaction.loan_repayment);
 
 module.exports = router;

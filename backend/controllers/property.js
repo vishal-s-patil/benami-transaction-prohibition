@@ -16,6 +16,23 @@ const get_properties = async (req, res) => {
     }
 }
 
+const status_change = async (req, res) => {
+    const { id, status } = req.body;
+    const filter = {nft_id: id}
+    const update = { $set : {status: status} }
+
+    const result = await Property.updateOne(filter, update);
+
+    if(result["acknowledged"] == true) {
+        res.status(200).json({"msg": "Status update successful"})
+        return;
+    }
+    else {
+        res.json({"msg": "error updating Status"})
+    }
+}
+
 module.exports = {
-    get_properties
+    get_properties,
+    status_change
 }

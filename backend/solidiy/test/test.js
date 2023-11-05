@@ -1,5 +1,8 @@
 // sepolia Contract : address // 0xb09d6c6bFc75DA451DcD09925EB57137a97791e5
 
+
+/*
+
 const Web3 = require('web3');
 const fs = require('fs');
 const { ethers } = require("ethers");
@@ -174,7 +177,6 @@ async function finalizeSale(nftID, seller) {
     })
 }
 
-
 ///////////////////
 
 (async function () {
@@ -206,3 +208,7 @@ async function finalizeSale(nftID, seller) {
 //     }
 //     console.log(res);
 // });
+
+*/
+
+

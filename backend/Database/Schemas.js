@@ -31,7 +31,26 @@ const propertySchema = new Schema({
     metadata: String
 });
 
+const userRequestsSchema = new Schema({
+    metamaskId: String,
+    data: [{
+        requestFrom: String,
+        nftId: Number,
+        amount: Number
+    }]
+});
+
+const loanRepaymentSchema = new Schema({
+    metamaskId: String,
+    data: [{
+        lender: String,
+        loan: Number
+    }]
+});
+
 module.exports = {
     userSchema,
-    propertySchema
+    propertySchema,
+    userRequestsSchema,
+    loanRepaymentSchema
 }

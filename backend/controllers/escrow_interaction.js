@@ -186,6 +186,13 @@ const send_amount = async (req, res) => {
     res.send({ "msg": "amount sent" });
 }
 
+// repayment of loan
+const loan_repayment = async (req, res) => {
+    const { from, to, amt } = req.body;
+    web3.eth.sendTransaction({ from: from, to: to, value: tokens(amt) });
+    res.json({ "msg": "loan repayment successful" });
+}
+
 // finalizeSale
 const finalize_sale_promise = function (nftID, seller) {
     return new Promise(async function (resolve, reject) {
@@ -214,5 +221,6 @@ module.exports = {
     deposit_earnest,
     get_balance_in_contract,
     send_amount,
-    finalize_sale
+    finalize_sale,
+    loan_repayment
 }
