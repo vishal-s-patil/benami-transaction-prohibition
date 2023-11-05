@@ -4,7 +4,7 @@ const { propertySchema } = require('./Schemas')
 const { userRequestsSchema } = require('./Schemas')
 const { loanRepaymentSchema } = require('./Schemas')
 
-require('./database_connection');
+// require('./database_connection');
 
 const User = mongoose.model('User', userSchema);
 const Property = mongoose.model('Property', propertySchema);

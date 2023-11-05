@@ -6,6 +6,7 @@ const { extract } = require("./Extract");
 const { get_structured_data } = require("./get_structured_data")
 const { User, UserRequests, LoanRepayment } = require('../Database/Models');
 
+
 // storage 
 
 var storage = multer.diskStorage({
@@ -41,6 +42,7 @@ const send_xml_promise = function (filename) {
                     }
                 })
         } catch (err) {
+            reject(err);
             return new Error(err.message);
         }
     });
@@ -55,7 +57,7 @@ const upload_xml = async (req, res) => {
         if (error) {
             return res.end('Error Uploading File');
         } else {
-            const filename = req.file.filename;
+            const filename = req.file.originalname;
             const pass = req.body.pass;
             const account_address = req.body.account_address;
 
@@ -69,9 +71,9 @@ const upload_xml = async (req, res) => {
                             .then(() => {
                                 get_structured_data(filename.slice(0, -4))
                                     .then((user_data) => {
-                                        user_data.account_address = account_address;
-                                        const user = new User(user_data);
-                                        user.save();
+                                        // user_data.account_address = account_address;
+                                        // const user = new User(user_data);
+                                        // user.save();
                                         res.json({ user_data });
                                     }).catch(err => {
                                         console.log('xml parsing failed', err);
@@ -87,6 +89,8 @@ const upload_xml = async (req, res) => {
                         })
                         return;
                     }
+                }).catch(err => {
+                    console.log("send_xml_promise failed");
                 })
         }
     });
@@ -227,28 +231,27 @@ const get_lenders = async (req, res) => {
 
 const add_lenders = async (req, res) => {
     const { buyer, lender, amount } = req.body;
-    
+
     const new_lender = {
-        lender : lender,
+        lender: lender,
         amount: amount
     }
 
-    const filter = {metamaskId : buyer}
-    const update = {$push: {data: new_lender}}
+    const filter = { metamaskId: buyer }
+    const update = { $push: { data: new_lender } }
 
     const result = await LoanRepayment.updateOne(filter, update);
 
     // console.log(result);
 
-    if(result["acknowledged"] == true) {
-        res.status(200).json({"msg": "lender added successfully"})
+    if (result["acknowledged"] == true) {
+        res.status(200).json({ "msg": "lender added successfully" })
         return;
     }
     else {
-        res.json({"msg": "error adding lender"})
+        res.json({ "msg": "error adding lender" })
     }
 
-    
     /*
     let data = [
         {
@@ -283,15 +286,44 @@ const pay_loan = async (req, res) => {
         amt: amount
     };
 
-    const response = await axios.post("http://localhost:8000/escrow/loan_repayment", postData);
+    // const response = await axios.post("http://localhost:8000/escrow/loan_repayment", postData);
 
-    console.log('rep', response.data["msg"]);
+    // console.log('rep', response.data["msg"]);
 
-    if (response.data["msg"] == msg) {
+    if (true) { //response.data["msg"] == msg
+        const UserRequests_data = await UserRequests.findOne({ metamaskId: lender });
+        // console.log('data', UserRequests_data);
+
+        const updated_UserRequests_data = UserRequests_data?.data.filter((ele) => {
+            return ele["requestFrom"] !== buyer;
+        })
+        // console.log('data', updated_UserRequests_data);
+        // console.log();
+
+        const lenders_data = await LoanRepayment.findOne({ metamaskId: buyer });
+        // console.log('lenders_data', lenders_data);
+
+        const updated_lenders_data = lenders_data?.data.filter(ele => {
+            return ele.lender !== lender;
+        })
+
+        const UserRequests_update_resp = await UserRequests.updateOne({ metamaskId: lender }, { $set: { data: updated_UserRequests_data } });
+        const LoanRepayment_update_resp = await LoanRepayment.updateOne({ metamaskId: buyer }, { $set: { data: updated_lenders_data } });
+
+        if (UserRequests_update_resp["acknowledged"] != true) {
+            console.log('error removing UserRequests');
+            res.status(200).json({ "msg": "error removing UserRequests" });
+        }
+        if (LoanRepayment_update_resp["acknowledged"] != true) {
+            console.log('error removing loanRequests');
+            res.status(200).json({ "msg": "error removing loanRequests" });
+        }
+
+        // console.log('updated_lenders_data', updated_lenders_data);
+
+
         res.send('amount paid successfully');
     }
-
-
 }
 
 module.exports = {

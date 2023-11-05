@@ -1,38 +1,20 @@
 const Web3 = require("web3");
 const express = require("express");
 const cors = require("cors");
-const multer = require("multer");
 const path = require("path");
 const bodyParser = require('body-parser');
-require('./Database/database_connection')
 const dotenv = require('dotenv');
+require('./Database/database_connection')
 
-const { extract } = require("./controllers/Extract");
-const { log } = require("console");
-
+const port = 8000;
 const app = express();
 
 // json parser 
-app.use(express.json());
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const profile_route = require('./routes/profile_route');
-const property_route = require('./routes/property_route');
-const nft_interaction_route = require('./routes/nft_interaction_route');
-const escrow_interaction_route = require('./routes/escrow_interaction_route');
-
 app.use(cors());
-
 app.use(express.static(path.join(__dirname, "public")));
-const upload = multer({ dest: "uploads/" });
-
-// routes
-app.use('/profile', profile_route);
-app.use('/property', property_route);
-app.use('/nft', nft_interaction_route);
-app.use('/escrow', escrow_interaction_route);
-
-
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
@@ -40,50 +22,22 @@ app.use((req, res, next) => {
   next();
 });
 
-const port = 8000;
 
-/*
-const contractABI = require("./contractABI.json");
-const contractAddress = "0x38A3F10Acbe84585C6Ec41A34e33EaC3C7852084";
+// routes
+const profile_route = require('./routes/profile_route');
+const property_route = require('./routes/property_route');
+const nft_interaction_route = require('./routes/nft_interaction_route');
+const escrow_interaction_route = require('./routes/escrow_interaction_route');
 
-async function callContractFunction() {
-  const web3 = new Web3("http://localhost:7545");
-  const accounts = await web3.eth.getAccounts();
+app.use('/profile', profile_route);
+app.use('/property', property_route);
+app.use('/nft', nft_interaction_route);
+app.use('/escrow', escrow_interaction_route);
 
-  const contract = new web3.eth.Contract(contractABI, contractAddress);
-
-  try {
-    const result = await contract.methods
-      .getMessage()
-      .call({ from: accounts[0] });
-    console.log("Function result:", result);
-    return result;
-  } catch (error) {
-    console.error("Error calling contract function:", error);
-  }
-}
-
-app.get("/", async (req, res) => {
-  const message = await callContractFunction();
-  res.json({ message: message });
-});
-
-app.post("/upload", upload.single("file"), (req, res) => {
-  if (!req.file) {
-    res.status(400).send("No file uploaded.");
-  } else {
-    const file = req.file;
-    const pass = req.body.password;
-
-    const fileName = file.filename;
-
-    extract(fileName, pass);
-
-    res.send(`${req.file.originalname} uploaded successfully.`);
-  }
-});
-
-*/
+app.post('/upload', (req, res) => {
+  console.log(req.body);
+  res.send('hi');
+})
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
