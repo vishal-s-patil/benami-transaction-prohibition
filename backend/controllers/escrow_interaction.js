@@ -72,6 +72,17 @@ const list = async (req, res) => {
     console.log("seller", seller);
     console.log();
 
+
+    try {
+        const filter = {nft_id: nftID}
+        const update = {$set: {emi: escrowAmount}}
+        await Property.updateOne(filter, update);
+    }
+    catch {
+        console.log('err in updatin emi');
+        res.send('err');
+    }
+
     try {
         const list_response = await list_promise(nftID, purchasePrice, escrowAmount, seller);
         // console.log(list_response);
@@ -168,26 +179,26 @@ const deposit_earnest = async (req, res) => {
     console.log('inspector', inspector);
     console.log();
 
-    // try {
+    try {
         const deposit_earnest_response = await deposit_earnest_promise(nftID, buyer, amt);
-        console.log('deposit_earnest_response', deposit_earnest_response);
+        // console.log('deposit_earnest_response', deposit_earnest_response);
         await updateInspectionStatus(nftID, true, inspector);
         const buyer_aprove_sale_response = await approve_sale_promise(nftID, buyer);
         const seller_aprove_sale_response = await approve_sale_promise(nftID, seller);
         const lender_aprove_sale_response = await approve_sale_promise(nftID, lender);
-        console.log('buyer_aprove_sale_response', buyer_aprove_sale_response);
-        console.log('seller_aprove_sale_response', seller_aprove_sale_response);
-        console.log('lender_aprove_sale_response', lender_aprove_sale_response);
+        // console.log('buyer_aprove_sale_response', buyer_aprove_sale_response);
+        // console.log('seller_aprove_sale_response', seller_aprove_sale_response);
+        // console.log('lender_aprove_sale_response', lender_aprove_sale_response);
         console.log("buyer approved", buyer);
         console.log("seller approved", seller);
         console.log("lender approved", lender);
         console.log('deposit done', nftID);
         res.send({ "msg": `deposit done` });
-    // }
-    // catch(err) {
-    //     console.log('err in depoit earnest', err);
-    //     res.send('err');
-    // }
+    }
+    catch(err) {
+        console.log('err in depoit earnest', err);
+        res.send('err');
+    }
 }
 
 // updateInspectionStatus

@@ -143,7 +143,7 @@ const mint_nft = (req, res) => {
                 addr: data["address"],
                 type: data["attributes"][1].value,
                 sqft: data["attributes"][4].value,
-                status: "owned",
+                status: "notOnSale",
                 bed_rooms: data["attributes"][2].value,
                 bath_rooms: data["attributes"][3].value,
                 image: data["image"],
@@ -313,7 +313,7 @@ const get_ownership_history = async (req, res) => {
     }
     catch(err) {
         console.log('err in get ownership history', err);
-        res.send('err');
+        res.json({"msg": "error"});
     }
 }
 
