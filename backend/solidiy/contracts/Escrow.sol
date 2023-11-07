@@ -68,7 +68,7 @@ contract Escrow {
     }
 
     function depositEarnest(uint256 _nftID) public payable onlyBuyer(_nftID) {
-        require(msg.value >= escrowAmount[_nftID]);
+        require(msg.value >= escrowAmount[_nftID], 'deposit amount is less');
     }
 
     function updateInspectionStatus(uint256 _nftID, bool _passed) public onlyInspector {
@@ -89,7 +89,7 @@ contract Escrow {
         isListed[_nftID] = false;
 
         (bool success, ) = payable(seller).call{value: address(this).balance}("");
-        require(success);
+        require(success, 'payable failed in finalizeSale');
 
         IERC721(nftAddress).transferFrom(address(this), buyer[_nftID], _nftID);
     }

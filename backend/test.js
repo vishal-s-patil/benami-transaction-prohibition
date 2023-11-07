@@ -185,3 +185,10 @@ getNFTOwnershipHistory().then((history) => {
 });
 
 */
+
+const { utils } = require('ethers');
+const { ethers } = require("ethers");
+const tokens = (n) => {
+    return ethers.utils.parseUnits(n.toString(), 'ether')
+}
+console.log(tokens(10));

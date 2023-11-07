@@ -71,9 +71,12 @@ const upload_xml = async (req, res) => {
                             .then(() => {
                                 get_structured_data(filename.slice(0, -4))
                                     .then((user_data) => {
-                                        // user_data.account_address = account_address;
-                                        // const user = new User(user_data);
-                                        // user.save();
+                                        user_data.account_address = account_address;
+                                        const user = new User(user_data);
+                                        user.save();
+                                        delete user_data.account_address;
+                                        user_data.metamaskId = account_address;
+                                        console.log('user_data upload xml'); //user_data
                                         res.json({ user_data });
                                     }).catch(err => {
                                         console.log('xml parsing failed', err);
@@ -81,7 +84,6 @@ const upload_xml = async (req, res) => {
                             }).catch(err => {
                                 console.log('extraction failed', err);
                             })
-                        return;
                     }
                     else {
                         res.json({
@@ -102,31 +104,55 @@ const is_correct_uuid = (req, res) => {
 const get_user_data = async (req, res) => {
     const account_address = req.query.account_address;
     if (account_address == undefined) {
+        // return;
         const users = await User.find({});
         res.send(users);
     } else {
-        const users = await User.find({ account_address });
-        if (users.length == 0) {
-            res.status(404).send({ "msg": "No records found" });
+        // console.log('account_address', req.query.account_address)
+        let user = await User.findOne({ account_address: req.query.account_address });
+        //console.log('users', user);
+        // res.status(200).send({ "msg": "No records found" });
+        // return;
+        if (user == null) {
+            res.status(200).send({ "msg": "No records found" });
         }
         else {
-            res.send(users);
+            user = user.toJSON();
+            user.metamaskId = user.account_address;
+            delete user.account_address
+
+            // for(let x in user.toJSON()) {
+            //     console.log('x', x);
+            //     new_user.x = user[x];
+            // }
+            // new_user.metamaskId = user.account_address;
+            // delete new_user.account_address;
+            // console.log("user form get user data ", user);
+            res.send(user);
         }
     }
 }
 
 const get_user_requests = async (req, res) => {
     const { userId } = req.query;
+
+    // console.log('get user requests', userId);
+
     if (userId == undefined) {
+        // return;
         let all_user_requests = await UserRequests.find();
-        // console.log(all_user_requests);
+        console.log("all_user_requests sent");
         res.status(200).json(all_user_requests);
         return;
     }
     // console.log(userId);
     let requests = await UserRequests.findOne({ metamaskId: userId });
     // console.log('requests', requests);
-    res.status(200).json(requests["data"]);
+    if (requests != null) {
+        console.log(userId, "user request sent");
+        res.status(200).json(requests["data"]);
+    }
+    else res.status(200).json({ "msg": "no user found with requested user id" });
 }
 
 const remove_user_request = async (req, res) => {
@@ -152,26 +178,45 @@ const remove_user_request = async (req, res) => {
 }
 
 const add_user_request = async (req, res) => {
-    const { requestFrom, requestTo, nftId, amount } = req.body;
+    let { requestFrom, requestTo, nftId, amount } = req.body;
+    console.log('add user request', requestFrom, requestTo, nftId, amount);
+    requestFrom = requestFrom.toLowerCase();
+    requestTo = requestTo.toLowerCase();
 
-    const new_request = {
-        requestFrom: requestFrom,
-        nftId: nftId,
-        amount: amount
-    }
-
-    const filter = { metamaskId: requestTo };
-
-    const update = { $push: { data: new_request } };
-
-    let result = await UserRequests.updateOne(filter, update);
-
-    if (result["acknowledged"] == true) {
+    let user = await UserRequests.findOne({ metamaskId: requestTo });
+    if (!user) {
+        const new_user = {
+            metamaskId: requestTo,
+            data: {
+                requestFrom: requestFrom,
+                nftId: nftId,
+                amount: amount
+            }
+        }
+        user = new UserRequests(new_user);
+        user.save();
         res.status(200).json({ "msg": "request added successfully" });
     }
     else {
-        console.log('error adding request');
-        res.status(200).json({ "msg": "error adding request" });
+        const new_request = {
+            requestFrom: requestFrom,
+            nftId: nftId,
+            amount: amount
+        }
+
+        const filter = { metamaskId: requestTo };
+
+        const update = { $push: { data: new_request } };
+
+        let result = await UserRequests.updateOne(filter, update);
+
+        if (result["acknowledged"] == true) {
+            res.status(200).json({ "msg": "request added successfully" });
+        }
+        else {
+            console.log('error adding request');
+            res.status(200).json({ "msg": "error adding request" });
+        }
     }
     /*
     let data = {
@@ -218,7 +263,9 @@ const add_user_request = async (req, res) => {
 
 const get_lenders = async (req, res) => {
     const { account_address } = req.query;
+    console.log('get lenders', account_address);
     if (account_address == undefined) {
+        // return;
         let all_user_lenders = await LoanRepayment.find();
         // console.log(all_user_lenders);
         res.status(200).json(all_user_lenders);
@@ -226,30 +273,58 @@ const get_lenders = async (req, res) => {
     }
     let filter = { metamaskId: account_address }
     const data = await LoanRepayment.findOne(filter);
+    if(!data) {
+        res.send('lender not found');
+        return;
+    }
     res.status(200).json(data["data"]);
 }
 
 const add_lenders = async (req, res) => {
-    const { buyer, lender, amount } = req.body;
+    let { buyer, lender, amount } = req.body;
+    buyer = buyer.toLowerCase();
+    lender = lender.toLowerCase();
 
-    const new_lender = {
-        lender: lender,
-        amount: amount
-    }
+    console.log('add lenders', buyer, lender, amount);
+    // metamaskId: String,
+    // data: [{
+    //     lender: String,
+    //     loan: Number
+    // }]
+    let user = await LoanRepayment.findOne({metamaskId: buyer});
+    
+    if(!user) {
+        const new_user = {
+            metamaskId: buyer,
+            data: {
+                lender: lender,
+                loan: amount
+            }
+        }
 
-    const filter = { metamaskId: buyer }
-    const update = { $push: { data: new_lender } }
-
-    const result = await LoanRepayment.updateOne(filter, update);
-
-    // console.log(result);
-
-    if (result["acknowledged"] == true) {
+        user = new LoanRepayment(new_user);
+        user.save();
         res.status(200).json({ "msg": "lender added successfully" })
-        return;
     }
     else {
-        res.json({ "msg": "error adding lender" })
+        const new_lender = {
+            lender: lender,
+            amount: amount
+        }
+
+        const filter = { metamaskId: buyer }
+        const update = { $push: { data: new_lender } }
+
+        const result = await LoanRepayment.updateOne(filter, update);
+
+        // console.log(result);
+
+        if (result["acknowledged"] == true) {
+            res.status(200).json({ "msg": "lender added successfully" })
+        }
+        else {
+            res.json({ "msg": "error adding lender" })
+        }
     }
 
     /*
@@ -286,11 +361,11 @@ const pay_loan = async (req, res) => {
         amt: amount
     };
 
-    // const response = await axios.post("http://localhost:8000/escrow/loan_repayment", postData);
+    const response = await axios.post("http://localhost:8000/escrow/loan_repayment", postData);
 
-    // console.log('rep', response.data["msg"]);
+    console.log('rep', response.data["msg"]);
 
-    if (true) { //response.data["msg"] == msg
+    if (response.data["msg"] == msg) { //
         const UserRequests_data = await UserRequests.findOne({ metamaskId: lender });
         // console.log('data', UserRequests_data);
 
